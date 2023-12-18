@@ -1,0 +1,17 @@
+clc,clear;
+none=xlsread("无差别处理45铅钡16高钾6待处理.xlsx");
+none_T=none';  
+alknown=none_T(:,[1:61]);  
+unknown=none_T(:,[62:end]); 
+[a,ps]=mapstd(alknown);  
+meanvector=ps.xmean; 
+SDvector=ps.xstd;  
+b=mapstd('apply',unknown,ps); 
+group=[ones(45,1);-ones(16,1)]; 
+train=fitcsvm(a',group); 
+sv_index=find(train.IsSupportVector);  
+f_weights=train.Alpha; 
+f_cons=train.Bias; 
+check=predict(train,a');  
+err_rate=1-sum(group==check)/length(group);  
+judgment=predict(train,b');  
